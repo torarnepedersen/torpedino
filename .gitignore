@@ -1,0 +1,8 @@
+# Auto-genererte filer – regenereres med tools/make_assets.py
+esp32s2/torpedino/torpedino_png.ino
+esp32s2/torpedino/pinwizard_html.ino
+esp32c5/torpedino/torpedino_png.ino
+esp32c5/torpedino/pinwizard_html.ino
+
+# Release-artefakter
+*/torpedino/torpedino-*.zip
