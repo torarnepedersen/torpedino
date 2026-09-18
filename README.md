@@ -12,11 +12,12 @@ Firmware for Torpedino – et egendefinert undervisningsbrett basert på ESP32.
 ## Kom i gang
 
 1. Åpne Arduino-sketchen for ønsket variant, f.eks. `esp32s2/torpedino/torpedino.ino`
-2. Generer de nødvendige filene:
-   ```
-   python3 tools/make_assets.py
-   ```
-3. Flash via USB første gang, deretter via OTA
+2. Flash via USB første gang, deretter via OTA
+
+De auto-genererte filene (`torpedino_png.ino`, `pinwizard_html.ino`) følger med i repoet, så dette steget holder for å bare flashe. Hvis du endrer `pinwizard.html` eller `torpedino.png`, må du regenerere dem selv (krever Pillow: `pip install pillow`):
+```
+python3 tools/make_assets.py
+```
 
 ## Ny release
 
