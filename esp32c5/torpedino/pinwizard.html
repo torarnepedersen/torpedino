@@ -1,0 +1,1031 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Pin-veiviser – torpedino</title>
+<style>
+*{box-sizing:border-box}
+body{font-family:sans-serif;margin:0;padding:12px 16px;background:#f0f2f5;color:#1a1a1a}
+h1{margin:0 0 14px;font-size:1.4rem}
+.layout{display:flex;gap:18px;flex-wrap:wrap;align-items:flex-start}
+.board-col{flex:0 0 auto}
+.board-col img{max-width:220px;border-radius:10px;box-shadow:0 3px 12px rgba(0,0,0,.25);display:block}
+.board-caption{text-align:center;font-size:11px;color:#666;margin-top:5px}
+.wizard{flex:1 1 290px;min-width:260px}
+label{font-weight:bold;font-size:13px;color:#444;display:block;margin-bottom:4px}
+select{width:100%;padding:10px;font-size:15px;border-radius:7px;border:1px solid #ccc;
+       background:#fff;margin-bottom:14px;cursor:pointer}
+select:focus{outline:2px solid #0d6efd;border-color:#0d6efd}
+.result{background:#fff;border-radius:10px;padding:16px;display:none;
+        box-shadow:0 2px 8px rgba(0,0,0,.08)}
+.result.show{display:block}
+.dev-name{font-size:1.1rem;font-weight:bold;margin:0 0 6px}
+.proto-badge{display:inline-block;background:#6f42c1;color:#fff;border-radius:5px;
+             padding:2px 10px;font-size:12px;margin-bottom:12px}
+.pins-heading{font-size:12px;font-weight:bold;color:#555;margin:12px 0 6px;
+              text-transform:uppercase;letter-spacing:.05em}
+.pin-row{display:flex;align-items:center;gap:10px;padding:5px 0;border-bottom:1px solid #f0f0f0}
+.pin-row:last-child{border:none}
+.badge{border-radius:4px;padding:2px 9px;font-size:12px;font-family:monospace;
+       min-width:90px;text-align:center;white-space:nowrap}
+.badge.power{background:#dc3545;color:#fff}
+.badge.gnd{background:#333;color:#fff}
+.badge.signal{background:#198754;color:#fff}
+.badge.optional{background:#6c757d;color:#fff}
+.pin-label{font-size:13px;color:#333}
+.meta{display:flex;gap:10px;flex-wrap:wrap;margin:12px 0 8px}
+.meta-box{background:#f8f9fa;border-radius:7px;padding:8px 12px;text-align:center;flex:1 1 80px}
+.meta-box .val{font-size:1.5rem;font-weight:bold;color:#0d6efd}
+.meta-box .lbl{font-size:11px;color:#666;margin-top:2px}
+.volt-box .val{color:#dc3545;font-size:1rem;margin-top:4px}
+.libs{margin:10px 0 0}
+.lib-tag{display:inline-block;background:#e9ecef;border-radius:4px;
+         padding:2px 8px;font-size:12px;margin:2px;font-family:monospace}
+.tip{background:#fff3cd;border-left:4px solid #ffc107;border-radius:0 6px 6px 0;
+     padding:10px 13px;margin-top:12px;font-size:13px;line-height:1.5}
+.tip strong{color:#664d03}
+.notice{background:#cfe2ff;border-left:4px solid #0d6efd;border-radius:0 6px 6px 0;
+        padding:8px 13px;margin-top:8px;font-size:12px;color:#084298}
+
+/* ── Demo-seksjon ── */
+.demo-section{background:#eef5ff;border:1px solid #b8d4f0;border-radius:8px;
+              padding:14px;margin-top:14px}
+.demo-heading{font-weight:bold;font-size:13px;color:#084298;margin-bottom:10px}
+.demo-pins{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:10px;align-items:center}
+.demo-pins label{font-size:12px;color:#555;display:flex;align-items:center;gap:4px}
+.demo-pins input{width:52px;padding:4px 6px;font-size:13px;border:1px solid #aac4e8;
+                 border-radius:4px;text-align:center;font-family:monospace}
+.demo-actions{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}
+.demo-btn{padding:7px 13px;border:none;border-radius:6px;cursor:pointer;font-size:13px;
+          background:#0d6efd;color:#fff;transition:background .15s}
+.demo-btn:hover{background:#0b5ed7}
+.demo-btn:active{background:#0a58ca}
+.demo-btn:disabled{background:#9dc0f5;cursor:wait}
+.demo-result{min-height:26px;font-size:13px}
+.demo-ok{background:#d1e7dd;color:#0a3622;border-radius:4px;padding:4px 10px;display:inline-block}
+.demo-err{background:#f8d7da;color:#58151c;border-radius:4px;padding:4px 10px;display:inline-block}
+.no-demo{background:#fff3cd;border-left:4px solid #ffc107;border-radius:0 6px 6px 0;
+         padding:8px 13px;font-size:12px;color:#664d03;margin-top:14px}
+
+/* ── Kode-seksjon ── */
+.code-block{margin-top:12px}
+.code-block summary{cursor:pointer;font-size:13px;font-weight:bold;color:#444;
+                    padding:8px 0;user-select:none}
+.code-block pre{background:#1e1e2e;color:#cdd6f4;border-radius:8px;padding:14px;
+                font-size:12px;line-height:1.55;overflow-x:auto;margin:4px 0 6px}
+.copy-btn{padding:5px 12px;background:#6c757d;color:#fff;border:none;border-radius:5px;
+          cursor:pointer;font-size:12px}
+.copy-btn:hover{background:#5a6268}
+.copy-ok{color:#198754;font-size:12px;margin-left:8px}
+
+a.back{color:#0d6efd;text-decoration:none;font-size:13px}
+a.back:hover{text-decoration:underline}
+</style>
+</head>
+<body>
+
+<h1>&#128268; Pin-veiviser</h1>
+
+<div class="layout">
+  <div class="board-col">
+    <img src="torpedino.png" alt="Torpedino-brett">
+    <p class="board-caption">Torpedino v0.0003<br>ESP32-C5-WROOM-1</p>
+  </div>
+
+  <div class="wizard">
+    <div style="background:#e8f4fd;border-left:4px solid #0d6efd;border-radius:0 6px 6px 0;
+                padding:9px 13px;margin-bottom:14px;font-size:12px;color:#084298">
+      <strong>Torpedino strømskinner:</strong><br>
+      <strong>+5 V</strong> = USB-C VBUS (begrenset av strømforsyningen, typisk 500 mA–3 A)<br>
+      <strong>+3.3 V</strong> = LD1117-regulator (maks ~800 mA, praktisk ~400 mA etter ESP32)
+    </div>
+
+    <div style="background:#fff3cd;border-left:4px solid #ffc107;border-radius:0 6px 6px 0;
+                padding:9px 13px;margin-bottom:14px;font-size:12px;color:#664d03">
+      <strong>&#9888; ESP32-C5 har færre GPIO-er enn ESP32-S2</strong> (22 brutt ut på WROOM-1-modulen,
+      GPIO 0–14 og 23–28). Unngå GPIO 7, 25, 26, 27, 28 (strapping-pinner brukt ved oppstart),
+      GPIO 13/14 (USB-Serial/JTAG) og GPIO 16–22 (interne flash/PSRAM-pinner – ikke tilgjengelige på modulen).
+    </div>
+
+    <label for="device">Velg enhet du vil koble til:</label>
+    <select id="device" onchange="update()">
+      <option value="">— velg enhet —</option>
+      <optgroup label="&#128161; Lys">
+        <option value="led">Enkelt-LED</option>
+        <option value="rgb_led">RGB LED (tre pinner, felles katode)</option>
+        <option value="ws2812">LED-stripe WS2812B / NeoPixel</option>
+      </optgroup>
+      <optgroup label="&#9881; Bevegelse">
+        <option value="servo">Servo (RC-servo)</option>
+        <option value="stepper_a4988">Steppermotor + A4988-driver</option>
+        <option value="stepper_drv8825">Steppermotor + DRV8825-driver</option>
+        <option value="stepper_uln2003">Steppermotor 28BYJ-48 + ULN2003</option>
+        <option value="dc_l298n">DC-motor + L298N H-bro</option>
+      </optgroup>
+      <optgroup label="&#128250; Display">
+        <option value="oled_i2c">OLED-display I2C (SSD1306)</option>
+        <option value="oled_spi">OLED-display SPI (SSD1306)</option>
+        <option value="lcd_i2c">LCD 1602 med I2C-adapter</option>
+      </optgroup>
+      <optgroup label="&#127781; Sensor">
+        <option value="dht22">DHT22 – temperatur og fuktighet</option>
+        <option value="ds18b20">DS18B20 – temperatur (1-Wire)</option>
+        <option value="hcsr04">HC-SR04 – ultralydsensor</option>
+        <option value="pir">PIR HC-SR501 – bevegelsessensor</option>
+        <option value="pot">Potensiometer / analog sensor</option>
+        <option value="button">Trykknapp</option>
+      </optgroup>
+      <optgroup label="&#128225; Kommunikasjon">
+        <option value="rfid_rc522">RFID RC522 (SPI)</option>
+        <option value="sdcard">SD-kortleser (SPI)</option>
+        <option value="uart_device">UART-enhet (GPS, BT-modul, etc.)</option>
+      </optgroup>
+    </select>
+
+    <div class="result" id="result"></div>
+    <br><a class="back" href="/">&#8592; Tilbake til forsiden</a>
+  </div>
+</div>
+
+<script>
+// ── Enhetsdatabase ──────────────────────────────────────────────────────────
+const D = {
+
+  led: {
+    name:"Enkelt-LED", proto:"GPIO – digital utgang", cables:2, volt:"3.3 V",
+    pins:[
+      {t:"gnd",    l:"GND  → katode  (korteste pinne på LED)"},
+      {t:"signal", l:"GPIO valgfri  (f.eks. GPIO 2)  → 220–470 Ω motstand → anode"}
+    ],
+    libs:[], tip:"Koble ALLTID en seriemotstand (220–470 Ω) mellom GPIO og LED-anoden. Uten motstand ryker LEDen. GPIO kan levere maks 40 mA, men hold deg under 12 mA.", notice:null,
+    demo:{
+      devId:"led",
+      pins:[{label:"GPIO", key:"p0", def:2}],
+      actions:[{l:"&#9889; Slå PÅ",a:"on"},{l:"&#9711; Slå AV",a:"off"},{l:"&#128161; Blink 5×",a:"blink"}]
+    },
+    code:`#define LED_PIN  2  // endre til din GPIO-pinne
+
+void userSetup() {
+  pinMode(LED_PIN, OUTPUT);
+}
+
+void userLoop() {
+  digitalWrite(LED_PIN, HIGH);  // PÅ
+  delay(500);
+  digitalWrite(LED_PIN, LOW);   // AV
+  delay(500);
+}`
+  },
+
+  rgb_led: {
+    name:"RGB LED (felles katode)", proto:"GPIO – digital/PWM utgang (3 pinner)", cables:4, volt:"3.3 V",
+    pins:[
+      {t:"gnd",    l:"GND  (felles katode – den lengste pinnen)"},
+      {t:"signal", l:"GPIO R  (f.eks. GPIO 2)  via 220 Ω"},
+      {t:"signal", l:"GPIO G  (f.eks. GPIO 3)  via 220 Ω"},
+      {t:"signal", l:"GPIO B  (f.eks. GPIO 4)  via 220 Ω"}
+    ],
+    libs:[], tip:"Bruk ledc-funksjonene (ESP32 PWM) for dimming og fargeblanding. Felles anode-versjon: inverter logikken (LOW = på, HIGH = av).", notice:null,
+    demo:{
+      devId:"rgb",
+      pins:[{label:"GPIO Rød",key:"p0",def:2},{label:"GPIO Grønn",key:"p1",def:3},{label:"GPIO Blå",key:"p2",def:4}],
+      actions:[
+        {l:"&#128308; Rød",a:"red"},{l:"&#128994; Grønn",a:"green"},
+        {l:"&#128309; Blå",a:"blue"},{l:"&#128993; Gul",a:"yellow"},
+        {l:"&#9898; Hvit",a:"white"},{l:"&#9711; Av",a:"off"}
+      ]
+    },
+    code:`#define PIN_R  2
+#define PIN_G  3
+#define PIN_B  4
+
+void userSetup() {
+  pinMode(PIN_R, OUTPUT);
+  pinMode(PIN_G, OUTPUT);
+  pinMode(PIN_B, OUTPUT);
+}
+
+void setRGB(bool r, bool g, bool b) {
+  digitalWrite(PIN_R, r);
+  digitalWrite(PIN_G, g);
+  digitalWrite(PIN_B, b);
+}
+
+void userLoop() {
+  setRGB(1,0,0); delay(500);  // rød
+  setRGB(0,1,0); delay(500);  // grønn
+  setRGB(0,0,1); delay(500);  // blå
+  setRGB(1,1,0); delay(500);  // gul
+  setRGB(0,0,0); delay(500);  // av
+}`
+  },
+
+  ws2812: {
+    name:"LED-stripe WS2812B / NeoPixel", proto:"1-leder seriell data (800 kbps)", cables:3, volt:"5 V  (USB-C VBUS)",
+    pins:[
+      {t:"power",  l:"+5 V  (USB-C VBUS – ved mange LED: sjekk at strømforsyningen tåler belastningen)"},
+      {t:"gnd",    l:"GND  (felles med ESP32!)"},
+      {t:"signal", l:"DATA: GPIO valgfri  (f.eks. GPIO 4)"}
+    ],
+    libs:["FastLED","Adafruit NeoPixel"],
+    tip:"DATA-motstand (300–500 Ω): ikke strengt nødvendig for korte kabler (< 50 cm) og få LED, men god vane – demper signalforstyrrelser. Kondensatoren (100–1000 µF mellom +5 V og GND nær strimen) er viktigere: den absorberer spenningstoppen når LED-strimen trekker støtstrøm, og beskytter den første LED. For 1–5 LED er begge valgfrie. For 10+ LED anbefales kondensatoren. Husk alltid felles GND.",
+    notice:null,
+    demo:null,
+    code:`// Bibliotek: "Adafruit NeoPixel" (installer via Bibliotekforvalter)
+#include <Adafruit_NeoPixel.h>
+#define PIN_DATA  4
+#define NUM_LEDS  16
+
+Adafruit_NeoPixel strip(NUM_LEDS, PIN_DATA, NEO_GRB + NEO_KHZ800);
+
+void userSetup() {
+  strip.begin();
+  strip.setBrightness(50);  // 0–255
+}
+
+void userLoop() {
+  // Løpende blå prikk
+  for (int i = 0; i < NUM_LEDS; i++) {
+    strip.fill(strip.Color(0, 0, 0));
+    strip.setPixelColor(i, strip.Color(0, 100, 150));
+    strip.show();
+    delay(50);
+  }
+}`
+  },
+
+  servo: {
+    name:"RC-servo", proto:"PWM – 50 Hz, 1–2 ms pulsbredde", cables:3, volt:"5 V  (USB-C VBUS)",
+    pins:[
+      {t:"power",  l:"+5 V  (USB-C VBUS)"},
+      {t:"gnd",    l:"GND  (felles med ESP32)"},
+      {t:"signal", l:"PWM: GPIO valgfri  (f.eks. GPIO 5)"}
+    ],
+    libs:[],
+    tip:"Servoer trekker mye strøm under belastning. +5 V på Torpedino er direkte USB-C VBUS, så strømbegrensningen er strømforsyningens. 3.3 V GPIO-signal er som regel nok til å styre servoer.",
+    notice:null,
+    demo:{
+      devId:"servo",
+      pins:[{label:"GPIO PWM",key:"p0",def:5}],
+      actions:[{l:"&#9664; Venstre (0°)",a:"left"},{l:"&#9632; Senter (90°)",a:"center"},{l:"&#9654; Høyre (180°)",a:"right"}]
+    },
+    code:`#define PIN_SERVO  5
+
+void servoWrite(int angle) {
+  int pulse = 500 + angle * 2000 / 180;             // µs, 500–2500
+  uint32_t duty = (uint32_t)pulse * 65536 / 20000;  // 16-bit duty
+  ledcWrite(PIN_SERVO, duty);
+}
+
+void userSetup() {
+  // Ny LEDC-API (arduino-esp32 3.x, kreves for ESP32-C5) – ingen kanal å oppgi
+  ledcAttach(PIN_SERVO, 50, 16);      // 50 Hz, 16-bit oppløsning
+  servoWrite(90);                     // senterposisjon ved oppstart
+}
+
+void userLoop() {
+  servoWrite(0);   delay(1000);      // venstre
+  servoWrite(90);  delay(1000);      // senter
+  servoWrite(180); delay(1000);      // høyre
+}`
+  },
+
+  stepper_a4988: {
+    name:"Steppermotor + A4988-driver", proto:"GPIO – STEP/DIR-puls", cables:6, volt:"3.3 V logikk (LD1117) / 8–35 V motor (ekstern)",
+    pins:[
+      {t:"signal",   l:"STEP: GPIO  (f.eks. GPIO 8)"},
+      {t:"signal",   l:"DIR:  GPIO  (f.eks. GPIO 9)"},
+      {t:"optional", l:"ENABLE: GPIO  (aktiv lav, f.eks. GPIO 10)"},
+      {t:"power",    l:"VDD: 3.3 V  (LD1117-regulatoren på Torpedino)"},
+      {t:"gnd",      l:"GND"},
+      {t:"power",    l:"VMOT: 8–35 V  (ekstern motorstrømforsyning – IKKE USB-C!)"}
+    ],
+    libs:["AccelStepper"],
+    tip:"Monter 100 µF kondensator på VMOT. Koble ALDRI til/fra motorkablene når VMOT er på – kan ødelegge A4988. Still microsteg-bryterne på driverkortet.",
+    notice:null,
+    demo:{
+      devId:"stepper_step",
+      pins:[{label:"STEP GPIO",key:"p0",def:8},{label:"DIR GPIO",key:"p1",def:9}],
+      actions:[{l:"&#8635; 200 steg med klokken",a:"cw"},{l:"&#8634; 200 steg mot klokken",a:"ccw"}]
+    },
+    code:`// Bibliotek: "AccelStepper" (valgfritt – gir akselerasjonskurve)
+#include <AccelStepper.h>
+#define PIN_STEP  8
+#define PIN_DIR   9
+
+AccelStepper stepper(AccelStepper::DRIVER, PIN_STEP, PIN_DIR);
+
+void userSetup() {
+  stepper.setMaxSpeed(1000);     // steg/sekund
+  stepper.setAcceleration(500);
+  stepper.moveTo(200);           // 200 steg = 1 omdr. (1.8°/steg-motor)
+}
+
+void userLoop() {
+  if (stepper.distanceToGo() == 0)
+    stepper.moveTo(-stepper.currentPosition());
+  stepper.run();  // må kalles hyppig – blokkerer IKKE
+}`
+  },
+
+  stepper_drv8825: {
+    name:"Steppermotor + DRV8825-driver", proto:"GPIO – STEP/DIR-puls", cables:6, volt:"3.3 V logikk (LD1117) / 8.2–45 V motor (ekstern)",
+    pins:[
+      {t:"signal",   l:"STEP: GPIO  (f.eks. GPIO 8)"},
+      {t:"signal",   l:"DIR:  GPIO  (f.eks. GPIO 9)"},
+      {t:"optional", l:"ENABLE: GPIO  (aktiv lav, valgfri)"},
+      {t:"power",    l:"VDD: 3.3 V  (LD1117-regulatoren på Torpedino)"},
+      {t:"gnd",      l:"GND"},
+      {t:"power",    l:"VMOT: 8.2–45 V  (ekstern motorstrømforsyning – IKKE USB-C!)"}
+    ],
+    libs:["AccelStepper"],
+    tip:"DRV8825 tåler høyere spenning enn A4988. Still strømbegrensning med Vref-potensimeteret: Vref = ønsket A × 2. Monter kjøleribbe på chipen.",
+    notice:null,
+    demo:{
+      devId:"stepper_step",
+      pins:[{label:"STEP GPIO",key:"p0",def:8},{label:"DIR GPIO",key:"p1",def:9}],
+      actions:[{l:"&#8635; 200 steg med klokken",a:"cw"},{l:"&#8634; 200 steg mot klokken",a:"ccw"}]
+    },
+    code:`// Identisk oppsett som A4988
+#include <AccelStepper.h>
+#define PIN_STEP  8
+#define PIN_DIR   9
+
+AccelStepper stepper(AccelStepper::DRIVER, PIN_STEP, PIN_DIR);
+
+void userSetup() {
+  stepper.setMaxSpeed(800);
+  stepper.setAcceleration(400);
+  stepper.moveTo(200);
+}
+
+void userLoop() {
+  if (stepper.distanceToGo() == 0)
+    stepper.moveTo(-stepper.currentPosition());
+  stepper.run();
+}`
+  },
+
+  stepper_uln2003: {
+    name:"Steppermotor 28BYJ-48 + ULN2003", proto:"GPIO – 4-fase sekvensiell", cables:6, volt:"5 V  (USB-C VBUS)",
+    pins:[
+      {t:"signal", l:"IN1: GPIO  (f.eks. GPIO 2)"},
+      {t:"signal", l:"IN2: GPIO  (f.eks. GPIO 3)"},
+      {t:"signal", l:"IN3: GPIO  (f.eks. GPIO 4)"},
+      {t:"signal", l:"IN4: GPIO  (f.eks. GPIO 5)"},
+      {t:"power",  l:"+5 V  (USB-C VBUS) til ULN2003-kortet"},
+      {t:"gnd",    l:"GND"}
+    ],
+    libs:["Stepper (Arduino)","AccelStepper"],
+    tip:"28BYJ-48 er et unipolar gearmotor med 4096 half-steg per omdreining. Demo kjører 512 steg én vei (Ê 45°). Trykk flere ganger for mer rotasjon.",
+    notice:null,
+    demo:{
+      devId:"stepper_uln2003",
+      pins:[
+        {label:"IN1 GPIO",key:"p0",def:2},{label:"IN2 GPIO",key:"p1",def:3},
+        {label:"IN3 GPIO",key:"p2",def:4},{label:"IN4 GPIO",key:"p3",def:5}
+      ],
+      actions:[{l:"&#8635; Med klokken (~45°)",a:"cw"},{l:"&#8634; Mot klokken (~45°)",a:"ccw"}]
+    },
+    code:`#define PIN_IN1  2
+#define PIN_IN2  3
+#define PIN_IN3  4
+#define PIN_IN4  5
+
+// Half-step sekvens for 28BYJ-48
+const uint8_t SEQ[8][4] = {
+  {1,0,0,0},{1,1,0,0},{0,1,0,0},{0,1,1,0},
+  {0,0,1,0},{0,0,1,1},{0,0,0,1},{1,0,0,1}
+};
+
+void step(int dir, int antall) {
+  static int pos = 0;
+  for (int s = 0; s < antall; s++) {
+    pos = (pos + dir + 8) % 8;
+    digitalWrite(PIN_IN1, SEQ[pos][0]);
+    digitalWrite(PIN_IN2, SEQ[pos][1]);
+    digitalWrite(PIN_IN3, SEQ[pos][2]);
+    digitalWrite(PIN_IN4, SEQ[pos][3]);
+    delay(2);
+  }
+  // Slå av spoler for å spare strøm
+  digitalWrite(PIN_IN1, LOW); digitalWrite(PIN_IN2, LOW);
+  digitalWrite(PIN_IN3, LOW); digitalWrite(PIN_IN4, LOW);
+}
+
+void userSetup() {
+  pinMode(PIN_IN1, OUTPUT); pinMode(PIN_IN2, OUTPUT);
+  pinMode(PIN_IN3, OUTPUT); pinMode(PIN_IN4, OUTPUT);
+}
+
+void userLoop() {
+  step(+1, 2048);  // halvt omdreining med klokken
+  delay(500);
+  step(-1, 2048);  // halvt omdreining mot klokken
+  delay(500);
+}`
+  },
+
+  dc_l298n: {
+    name:"DC-motor + L298N H-bro", proto:"GPIO – PWM + retningspinner", cables:5, volt:"5–35 V motor (ekstern) / 5 V logikk (USB-C VBUS)",
+    pins:[
+      {t:"signal", l:"ENA (PWM): GPIO  (f.eks. GPIO 5)  – hastighet"},
+      {t:"signal", l:"IN1: GPIO  (f.eks. GPIO 2)  – retning"},
+      {t:"signal", l:"IN2: GPIO  (f.eks. GPIO 3)  – retning"},
+      {t:"power",  l:"5 V  (USB-C VBUS – eller bruk L298N-ens innebygde 5V-ut)"},
+      {t:"gnd",    l:"GND  (felles)"}
+    ],
+    libs:[],
+    tip:"L298N kan styre to DC-motorer (kanaler A og B). Motorstrømmen (VS) kobles separat fra en ekstern forsyning. Demo kjører motor i 1.5 sekund.",
+    notice:null,
+    demo:{
+      devId:"dc_l298n",
+      pins:[{label:"ENA GPIO",key:"p0",def:5},{label:"IN1 GPIO",key:"p1",def:2},{label:"IN2 GPIO",key:"p2",def:3}],
+      actions:[{l:"&#9654; Fremover (1.5 s)",a:"forward"},{l:"&#9664; Bakover (1.5 s)",a:"backward"},{l:"&#9632; Stopp",a:"stop"}]
+    },
+    code:`#define PIN_ENA  5
+#define PIN_IN1  2
+#define PIN_IN2  3
+
+void userSetup() {
+  pinMode(PIN_ENA, OUTPUT);
+  pinMode(PIN_IN1, OUTPUT);
+  pinMode(PIN_IN2, OUTPUT);
+}
+
+void motorFremover(int fart) {   // fart: 0–255
+  analogWrite(PIN_ENA, fart);
+  digitalWrite(PIN_IN1, HIGH);
+  digitalWrite(PIN_IN2, LOW);
+}
+
+void motorBakover(int fart) {
+  analogWrite(PIN_ENA, fart);
+  digitalWrite(PIN_IN1, LOW);
+  digitalWrite(PIN_IN2, HIGH);
+}
+
+void motorStopp() { analogWrite(PIN_ENA, 0); }
+
+void userLoop() {
+  motorFremover(200); delay(1500);
+  motorStopp();       delay(300);
+  motorBakover(200);  delay(1500);
+  motorStopp();       delay(300);
+}`
+  },
+
+  oled_i2c: {
+    name:"OLED-display I2C (SSD1306)", proto:"I²C", cables:4, volt:"3.3 V",
+    pins:[
+      {t:"power",  l:"3.3 V  (VCC)"},
+      {t:"gnd",    l:"GND"},
+      {t:"signal", l:"SDA: GPIO 0  (standard I²C på ESP32-C5)"},
+      {t:"signal", l:"SCL: GPIO 1  (standard I²C på ESP32-C5)"}
+    ],
+    libs:["Adafruit SSD1306","U8g2"],
+    tip:"I²C-adresse er vanligvis 0x3C (128×64) eller 0x3D. SDA og SCL trenger pull-up-motstander (4.7 kΩ til 3.3 V) – mange breakout-board har disse innebygd.",
+    notice:"Opptil 8 I²C-enheter kan dele samme SDA/SCL så lenge de har ulike adresser.",
+    demo:{
+      devId:"i2c_scan",
+      pins:[{label:"SDA GPIO",key:"p0",def:0},{label:"SCL GPIO",key:"p1",def:1}],
+      actions:[{l:"Skann I²C-bussen",a:"scan"}]
+    },
+    code:`// Bibliotek: "Adafruit SSD1306" + "Adafruit GFX Library"
+#include <Wire.h>
+#include <Adafruit_SSD1306.h>
+#define PIN_SDA  0
+#define PIN_SCL  1
+
+Adafruit_SSD1306 display(128, 64, &Wire, -1);
+
+void userSetup() {
+  Wire.begin(PIN_SDA, PIN_SCL);
+  // Prøv begge vanlige adresser – bruk I²C-skann i pin-veiviseren om ingen fungerer
+  if (!display.begin(SSD1306_SWITCHCAPVCC, 0x3C) &&
+      !display.begin(SSD1306_SWITCHCAPVCC, 0x3D)) {
+    for (;;);  // ingen OLED funnet, stopp
+  }
+  display.clearDisplay();
+  display.setTextSize(2);
+  display.setTextColor(SSD1306_WHITE);
+  display.setCursor(10, 20);
+  display.println("Hei, verden!");
+  display.display();
+}
+
+void userLoop() {}`
+  },
+
+  oled_spi: {
+    name:"OLED-display SPI (SSD1306)", proto:"SPI", cables:7, volt:"3.3 V",
+    pins:[
+      {t:"power",  l:"3.3 V  (VCC)"},
+      {t:"gnd",    l:"GND"},
+      {t:"signal", l:"D0 / SCK / CLK:  GPIO 10  (standard SPI-klokke på ESP32-C5)"},
+      {t:"signal", l:"D1 / MOSI / SDA: GPIO 8  (standard SPI-data på ESP32-C5)"},
+      {t:"signal", l:"CS:  GPIO 6  (standard SPI SS på ESP32-C5)"},
+      {t:"signal", l:"DC:  GPIO valgfri  (data/kommando, f.eks. GPIO 4)"},
+      {t:"signal", l:"RES / RST: GPIO valgfri  (reset, f.eks. GPIO 5)"}
+    ],
+    libs:["Adafruit SSD1306","U8g2"],
+    tip:"SPI er raskere enn I²C og trenger ikke pull-up-motstander. CS, DC og RST kan kobles til valgfrie GPIO-er. Sjekk at modulen faktisk er konfigurert for SPI – noen har loddebruer eller brytere for valg.",
+    notice:null,
+    demo:null,
+    code:`// Bibliotek: "Adafruit SSD1306" + "Adafruit GFX Library"
+#include <SPI.h>
+#include <Adafruit_GFX.h>
+#include <Adafruit_SSD1306.h>
+#define PIN_SCK   10
+#define PIN_MOSI   8
+#define PIN_CS     6
+#define PIN_DC     4
+#define PIN_RST    5
+
+Adafruit_SSD1306 display(128, 64, &SPI, PIN_DC, PIN_RST, PIN_CS);
+
+void userSetup() {
+  SPI.begin(PIN_SCK, -1, PIN_MOSI, PIN_CS);
+  if (!display.begin(SSD1306_SWITCHCAPVCC)) {
+    for (;;);  // ingen OLED funnet – sjekk kablingen
+  }
+  display.clearDisplay();
+  display.setTextSize(2);
+  display.setTextColor(SSD1306_WHITE);
+  display.setCursor(10, 20);
+  display.println("Hei, verden!");
+  display.display();
+}
+
+void userLoop() {}`
+  },
+
+  lcd_i2c: {
+    name:"LCD 1602 med I²C-adapter (PCF8574)", proto:"I²C", cables:4, volt:"5 V  (LCD) / 3.3 V tolerant I²C",
+    pins:[
+      {t:"power",  l:"5 V  (USB-C VBUS) til I²C-adapteret"},
+      {t:"gnd",    l:"GND"},
+      {t:"signal", l:"SDA: GPIO 0"},
+      {t:"signal", l:"SCL: GPIO 1"}
+    ],
+    libs:["LiquidCrystal_I2C"],
+    tip:"I²C-adresse er vanligvis 0x27 eller 0x3F. Bruk I²C-skann i pin-veiviseren om du er usikker. Kontrasten justeres med potensimeteret på baksiden av adapteret.",
+    notice:"LCD trenger 5 V strøm, men I²C-linjene (SDA/SCL) er som regel 3.3 V-tolerante.",
+    demo:{
+      devId:"i2c_scan",
+      pins:[{label:"SDA GPIO",key:"p0",def:0},{label:"SCL GPIO",key:"p1",def:1}],
+      actions:[{l:"Skann I²C-bussen",a:"scan"}]
+    },
+    code:`// Bibliotek: "LiquidCrystal I2C" av Frank de Brabander
+#include <Wire.h>
+#include <LiquidCrystal_I2C.h>
+#define PIN_SDA  0
+#define PIN_SCL  1
+
+LiquidCrystal_I2C lcd(0x27, 16, 2);  // adresse, kolonner, rader
+
+void userSetup() {
+  Wire.begin(PIN_SDA, PIN_SCL);
+  lcd.init();
+  lcd.backlight();
+  lcd.setCursor(0, 0);
+  lcd.print("Torpedino!");
+  lcd.setCursor(0, 1);
+  lcd.print("Hei, verden!");
+}
+
+void userLoop() {}`
+  },
+
+  dht22: {
+    name:"DHT22 – temperatur og fuktighet", proto:"DHT singel-wire (proprietær)", cables:3, volt:"3.3–5.5 V",
+    pins:[
+      {t:"power",  l:"3.3 V"},
+      {t:"gnd",    l:"GND"},
+      {t:"signal", l:"DATA: GPIO valgfri  (f.eks. GPIO 4)  + 10 kΩ pull-up til 3.3 V"}
+    ],
+    libs:["DHT sensor library (Adafruit)","DHTesp"],
+    tip:"Vent minst 2 sekunder mellom målinger. Koble 10 kΩ pull-up motstand mellom DATA og 3.3 V. DHT22 er mer nøyaktig enn DHT11 (±0.5 °C vs ±2 °C).",
+    notice:null, demo:null,
+    code:`// Bibliotek: "DHT sensor library" av Adafruit
+#include <DHT.h>
+#define PIN_DATA  4
+#define TYPE      DHT22
+
+DHT dht(PIN_DATA, TYPE);
+
+void userSetup() {
+  dht.begin();
+}
+
+void userLoop() {
+  float temp  = dht.readTemperature();
+  float fukt  = dht.readHumidity();
+  if (isnan(temp) || isnan(fukt)) {
+    Serial.println("Lesefeil – sjekk kobling og pull-up");
+    delay(2000);
+    return;
+  }
+  Serial.printf("Temp: %.1f °C   Fukt: %.1f %%\n", temp, fukt);
+  delay(2000);
+}`
+  },
+
+  ds18b20: {
+    name:"DS18B20 – temperatur (1-Wire)", proto:"1-Wire (Dallas/Maxim)", cables:3, volt:"3.0–5.5 V",
+    pins:[
+      {t:"power",  l:"3.3 V"},
+      {t:"gnd",    l:"GND"},
+      {t:"signal", l:"DATA: GPIO valgfri  (f.eks. GPIO 5)  + 4.7 kΩ pull-up til 3.3 V"}
+    ],
+    libs:["OneWire","DallasTemperature"],
+    tip:"Flere DS18B20 kan kobles på SAMME DATA-linje (unik 64-bit adresse). Parasitt-modus (2 ledere) er mulig, men 3-lederforbindelsen er mer pålitelig.",
+    notice:null, demo:null,
+    code:`// Bibliotek: "OneWire" + "DallasTemperature"
+#include <OneWire.h>
+#include <DallasTemperature.h>
+#define PIN_DATA  5
+
+OneWire         oneWire(PIN_DATA);
+DallasTemperature sensors(&oneWire);
+
+void userSetup() {
+  sensors.begin();
+  Serial.printf("Fant %d sensor(er)\n", sensors.getDeviceCount());
+}
+
+void userLoop() {
+  sensors.requestTemperatures();
+  float temp = sensors.getTempCByIndex(0);
+  Serial.printf("Temperatur: %.2f °C\n", temp);
+  delay(1000);
+}`
+  },
+
+  hcsr04: {
+    name:"HC-SR04 – ultralydsensor", proto:"GPIO – digital TRIG + ECHO", cables:4, volt:"5 V  (USB-C VBUS)",
+    pins:[
+      {t:"power",  l:"5 V  (USB-C VBUS)"},
+      {t:"gnd",    l:"GND"},
+      {t:"signal", l:"TRIG: GPIO  (f.eks. GPIO 4)  – send 10 µs puls"},
+      {t:"signal", l:"ECHO: GPIO  (f.eks. GPIO 5)  via spenningsdeler!"}
+    ],
+    libs:["NewPing","HCSR04"],
+    tip:"ADVARSEL: ECHO-pinnen gir 5 V signal – ESP32 tåler kun 3.3 V! Bruk spenningsdeler (1 kΩ + 2 kΩ) eller logikkomsetter på ECHO-linjen. TRIG på 3.3 V fungerer fint.",
+    notice:"Avstand = (pulslengde i µs × 0.034) / 2  (cm)",
+    demo:{
+      devId:"hcsr04",
+      pins:[{label:"TRIG GPIO",key:"p0",def:4},{label:"ECHO GPIO",key:"p1",def:5}],
+      actions:[{l:"&#128207; Mål avstand",a:"measure"}]
+    },
+    code:`#define PIN_TRIG  4
+#define PIN_ECHO  5
+// NB: ECHO-pinnen må ha spenningsdeler (1 kΩ + 2 kΩ) – 5V skader ESP32!
+
+void userSetup() {
+  pinMode(PIN_TRIG, OUTPUT);
+  pinMode(PIN_ECHO, INPUT);
+}
+
+float maalAvstandCm() {
+  digitalWrite(PIN_TRIG, LOW);  delayMicroseconds(2);
+  digitalWrite(PIN_TRIG, HIGH); delayMicroseconds(10);
+  digitalWrite(PIN_TRIG, LOW);
+  long dur = pulseIn(PIN_ECHO, HIGH, 30000);  // 30 ms timeout
+  return dur * 0.034f / 2.0f;
+}
+
+void userLoop() {
+  float cm = maalAvstandCm();
+  Serial.printf("Avstand: %.1f cm\n", cm);
+  delay(500);
+}`
+  },
+
+  pir: {
+    name:"PIR HC-SR501 – bevegelsessensor", proto:"GPIO – digital utgang (HIGH ved bevegelse)", cables:3, volt:"5 V  (USB-C VBUS)  – tåler opp til 12 V",
+    pins:[
+      {t:"power",  l:"5 V  (USB-C VBUS)"},
+      {t:"gnd",    l:"GND"},
+      {t:"signal", l:"OUT: GPIO valgfri  – 3.3 V tolerant utgang"}
+    ],
+    libs:[],
+    tip:"PIR har oppvarmingstid på 30–60 sekunder etter strømspåslag. Juster sensitivitet (rekkevidde) og forsinkelsestid med de to blå potensimetrene på modulen.",
+    notice:null,
+    demo:{
+      devId:"pir",
+      pins:[{label:"OUT GPIO",key:"p0",def:4}],
+      actions:[{l:"&#128065; Les tilstand",a:"read"}]
+    },
+    code:`#define PIN_OUT  4
+
+void userSetup() {
+  pinMode(PIN_OUT, INPUT);
+  Serial.println("PIR klar – venter på oppvarming (30–60 sek)...");
+}
+
+void userLoop() {
+  if (digitalRead(PIN_OUT) == HIGH) {
+    Serial.println("Bevegelse oppdaget!");
+    delay(2000);  // unngå gjentatt utskrift
+  }
+}`
+  },
+
+  pot: {
+    name:"Potensiometer / analog sensor", proto:"ADC – analog inngang (12-bit)", cables:3, volt:"3.3 V maks på ADC-pinne",
+    pins:[
+      {t:"power",  l:"3.3 V  (ene ytterpinne på pot.)"},
+      {t:"gnd",    l:"GND  (andre ytterpinne på pot.)"},
+      {t:"signal", l:"Midtpinne (wiper): ADC-pinne  GPIO 0–6  (ADC1)"}
+    ],
+    libs:[],
+    tip:"ESP32-C5 har kun én ADC (ADC1), på GPIO 0–6. Utenfor dette området finnes ingen analog inngang. Koble aldri mer enn 3.3 V til ADC-pinnen. analogRead() returnerer 0–4095 (12-bit).",
+    notice:null,
+    demo:{
+      devId:"pot",
+      pins:[{label:"ADC GPIO",key:"p0",def:2}],
+      actions:[{l:"&#128270; Les verdi",a:"read"}]
+    },
+    code:`#define PIN_POT  2  // bruk GPIO 0–6 (ADC1)
+
+void userSetup() {
+  analogReadResolution(12);  // 12-bit = 0–4095
+}
+
+void userLoop() {
+  int   val  = analogRead(PIN_POT);
+  float volt = val * 3.3f / 4095.0f;
+  Serial.printf("ADC: %4d / 4095  (%.2f V)  %d%%\n",
+                val, volt, val * 100 / 4095);
+  delay(200);
+}`
+  },
+
+  button: {
+    name:"Trykknapp", proto:"GPIO – digital inngang med pull-up", cables:2, volt:"—",
+    pins:[
+      {t:"gnd",    l:"GND  (én side av knappen)"},
+      {t:"signal", l:"GPIO valgfri  (andre side)  – bruk INPUT_PULLUP"}
+    ],
+    libs:["Bounce2  (debouncing)"],
+    tip:"Med INPUT_PULLUP er pinnen normalt HIGH og LOW når knappen trykkes. Bruk debouncing (20–50 ms forsinkelse, eller Bounce2-biblioteket) for å unngå flakete avlesing.",
+    notice:null,
+    demo:{
+      devId:"button",
+      pins:[{label:"GPIO",key:"p0",def:5}],
+      actions:[{l:"&#128270; Les tilstand",a:"read"}]
+    },
+    code:`#define PIN_BTN  5
+
+void userSetup() {
+  pinMode(PIN_BTN, INPUT_PULLUP);
+}
+
+void userLoop() {
+  if (digitalRead(PIN_BTN) == LOW) {  // LOW = trykket
+    Serial.println("Knapp trykket!");
+    delay(50);  // enkel debounce
+    while (digitalRead(PIN_BTN) == LOW) {}  // vent til slipp
+    Serial.println("Knapp sluppet.");
+  }
+}`
+  },
+
+  rfid_rc522: {
+    name:"RFID RC522", proto:"SPI", cables:7, volt:"3.3 V  (ALDRI 5 V!)",
+    pins:[
+      {t:"power",    l:"3.3 V  (VCC – 5V ødelegger RC522!)"},
+      {t:"gnd",      l:"GND"},
+      {t:"signal",   l:"SDA/CS: GPIO 6  (standard SPI SS på ESP32-C5)"},
+      {t:"signal",   l:"SCK:    GPIO 10  (standard SPI-klokke på ESP32-C5)"},
+      {t:"signal",   l:"MOSI:   GPIO 8  (standard SPI-data på ESP32-C5)"},
+      {t:"signal",   l:"MISO:   GPIO 9  (standard SPI-inndata på ESP32-C5)"},
+      {t:"optional", l:"RST:    GPIO valgfri  (f.eks. GPIO 23)"}
+    ],
+    libs:["MFRC522"],
+    tip:"RC522 MÅ ha 3.3 V – aldri 5 V! SPI-hastighet maks 10 MHz. Flere SPI-enheter kan dele SCK/MOSI/MISO men trenger hver sin CS-pinne.",
+    notice:null, demo:null,
+    code:`// Bibliotek: "MFRC522" av GithubCommunity
+#include <SPI.h>
+#include <MFRC522.h>
+#define PIN_CS    6
+#define PIN_RST  23
+
+MFRC522 rfid(PIN_CS, PIN_RST);
+
+void userSetup() {
+  SPI.begin(10, 9, 8, PIN_CS);  // SCK, MISO, MOSI, CS
+  rfid.PCD_Init();
+  Serial.println("Hold kortet mot leseren...");
+}
+
+void userLoop() {
+  if (!rfid.PICC_IsNewCardPresent() || !rfid.PICC_ReadCardSerial()) return;
+  Serial.print("UID: ");
+  for (byte i = 0; i < rfid.uid.size; i++)
+    Serial.printf("%02X ", rfid.uid.uidByte[i]);
+  Serial.println();
+  rfid.PICC_HaltA();
+}`
+  },
+
+  sdcard: {
+    name:"SD-kortleser (SPI)", proto:"SPI", cables:6, volt:"3.3 V",
+    pins:[
+      {t:"power",  l:"3.3 V"},
+      {t:"gnd",    l:"GND"},
+      {t:"signal", l:"CS:   GPIO 24  (egen CS – kan dele buss med andre SPI-enheter)"},
+      {t:"signal", l:"SCK:  GPIO 10  (standard SPI-klokke på ESP32-C5)"},
+      {t:"signal", l:"MOSI: GPIO 8  (standard SPI-data på ESP32-C5)"},
+      {t:"signal", l:"MISO: GPIO 9  (standard SPI-inndata på ESP32-C5)"}
+    ],
+    libs:["SD (Arduino)","SdFat"],
+    tip:"Bruk korte kabler til SD-leser (SPI er støy-sensitiv). Formater kortet som FAT32. Koble aldri til/fra kortet mens ESP32 skriver – kan korrumpere filer.",
+    notice:"SD-kortlesere og RC522 kan dele SPI-buss, men trenger separate CS-pinner.",
+    demo:null,
+    code:`// Bibliotek: "SD" (innebygd i Arduino IDE)
+#include <SPI.h>
+#include <SD.h>
+#define PIN_CS  24
+
+void userSetup() {
+  SPI.begin(10, 9, 8, PIN_CS);  // SCK, MISO, MOSI, CS
+  if (!SD.begin(PIN_CS)) {
+    Serial.println("SD-initialisering feilet! Sjekk kobling og FAT32-format.");
+    return;
+  }
+  Serial.println("SD klar.");
+
+  // Skriv en testfil
+  File f = SD.open("/hei.txt", FILE_WRITE);
+  if (f) {
+    f.println("Hei fra Torpedino!");
+    f.close();
+    Serial.println("Fil skrevet: /hei.txt");
+  }
+}
+
+void userLoop() {}`
+  },
+
+  uart_device: {
+    name:"UART-enhet (GPS, BT-modul, etc.)", proto:"UART – asynkron seriell", cables:4, volt:"3.3 V logikk anbefalt",
+    pins:[
+      {t:"power",  l:"3.3 V eller 5 V  (sjekk enhetens krav)"},
+      {t:"gnd",    l:"GND  (felles med ESP32)"},
+      {t:"signal", l:"TX (ESP32 GPIO 11)  → RX (enhet)  – KRYSS!"},
+      {t:"signal", l:"RX (ESP32 GPIO 12)  ← TX (enhet)  – KRYSS!"}
+    ],
+    libs:[],
+    tip:"TX kobles til RX og omvendt – alltid! ESP32-C5 bruker USB-Serial/JTAG (ikke UART0) for Serial-monitoren, så UART0 (GPIO 11/12) er normalt ledig til egen bruk. Bruk gjerne Serial1 med egne pinner for å holde ting oversiktlig. 5V UART-enheter trenger logikkomsetter!",
+    notice:"Serial1.begin(9600, SERIAL_8N1, RX_PIN, TX_PIN);  – velg egne pinner.",
+    demo:null,
+    code:`// Eksempel: GPS-modul (f.eks. NEO-6M) på Serial1
+// TX (GPIO 5) → RX på GPS
+// RX (GPIO 4) ← TX på GPS
+#define GPS_RX  4
+#define GPS_TX  5
+
+void userSetup() {
+  Serial1.begin(9600, SERIAL_8N1, GPS_RX, GPS_TX);
+  Serial.println("Venter på GPS-data ($GPRMC, $GPGGA...)");
+}
+
+void userLoop() {
+  while (Serial1.available()) {
+    Serial.write(Serial1.read());  // videresend til USB-Serial Monitor
+  }
+}`
+  }
+};
+
+// ── Hjelpefunksjoner ────────────────────────────────────────────────────────
+
+function escHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function copyCode(key) {
+  const code = D[key].code;
+  const flash = () => {
+    const el = document.getElementById('copy_' + key);
+    el.textContent = 'Kopiert!';
+    setTimeout(() => el.textContent = 'Kopier kode', 2000);
+  };
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(code).then(flash).catch(() => fallbackCopy(code, flash));
+  } else {
+    fallbackCopy(code, flash);
+  }
+}
+
+function fallbackCopy(text, done) {
+  const ta = document.createElement('textarea');
+  ta.value = text;
+  ta.style.cssText = 'position:fixed;opacity:0;top:0;left:0';
+  document.body.appendChild(ta);
+  ta.focus(); ta.select();
+  try { document.execCommand('copy'); done(); } catch(e) {}
+  document.body.removeChild(ta);
+}
+
+function runDemo(devId, action, key) {
+  const d = D[key];
+  const resultEl = document.getElementById('dresult_' + key);
+  const btns = document.querySelectorAll('#dbtns_' + key + ' .demo-btn');
+  btns.forEach(b => b.disabled = true);
+  resultEl.innerHTML = '<span style="color:#666">Kjører…</span>';
+
+  const params = new URLSearchParams({dev: devId, action: action});
+  d.demo.pins.forEach(p => {
+    params.set(p.key, document.getElementById('dpin_' + key + '_' + p.key).value);
+  });
+
+  fetch('/demo?' + params.toString())
+    .then(r => r.json())
+    .then(data => {
+      resultEl.innerHTML =
+        '<span class="' + (data.ok ? 'demo-ok' : 'demo-err') + '">' + data.msg + '</span>';
+    })
+    .catch(() => {
+      resultEl.innerHTML = '<span class="demo-err">Feil: ikke koblet til torpedino</span>';
+    })
+    .finally(() => btns.forEach(b => b.disabled = false));
+}
+
+// ── Rendrer valgt enhet ─────────────────────────────────────────────────────
+
+function update() {
+  const key = document.getElementById('device').value;
+  const el  = document.getElementById('result');
+  if (!key) { el.className = 'result'; return; }
+  const d = D[key];
+
+  const pinRows = d.pins.map(p =>
+    '<div class="pin-row">' +
+    '<span class="badge ' + p.t + '">' +
+      (p.t==='power'?'VCC':p.t==='gnd'?'GND':p.t==='optional'?'valgfri':'SIGNAL') +
+    '</span><span class="pin-label">' + p.l + '</span></div>'
+  ).join('');
+
+  const libTags = d.libs.length
+    ? '<div class="libs"><span style="font-size:12px;color:#555;font-weight:bold">Anbefalte biblioteker:&nbsp;</span>' +
+      d.libs.map(l => '<span class="lib-tag">' + l + '</span>').join('') + '</div>'
+    : '';
+
+  const noticeHtml = d.notice
+    ? '<div class="notice">&#8505; ' + d.notice + '</div>' : '';
+
+  // Demo-seksjon
+  let demoHtml = '';
+  if (d.demo) {
+    const pinInputs = d.demo.pins.map(p =>
+      '<label>' + p.label + ':&nbsp;' +
+      '<input type="number" value="' + p.def + '" min="0" max="28" ' +
+             'id="dpin_' + key + '_' + p.key + '"></label>'
+    ).join('');
+    const actionBtns = d.demo.actions.map(a =>
+      '<button class="demo-btn" onclick="runDemo(\'' + d.demo.devId + '\',\'' + a.a + '\',\'' + key + '\')">' + a.l + '</button>'
+    ).join('');
+    demoHtml =
+      '<div class="demo-section">' +
+        '<div class="demo-heading">&#9654; Live demo – test direkte med brettet</div>' +
+        '<div class="demo-pins">' + pinInputs + '</div>' +
+        '<div class="demo-actions" id="dbtns_' + key + '">' + actionBtns + '</div>' +
+        '<div class="demo-result" id="dresult_' + key + '"></div>' +
+      '</div>';
+  } else {
+    demoHtml = '<div class="no-demo">&#128218; Live demo krever ekstra bibliotek. ' +
+               'Kopier eksempelkoden nedenfor, legg den i <code>torpedino.ino</code> og OTA-oppdater.</div>';
+  }
+
+  // Kode-seksjon
+  const codeHtml = d.code
+    ? '<details class="code-block"><summary>&#128196; Eksempelkode (Arduino)</summary>' +
+      '<pre><code>' + escHtml(d.code) + '</code></pre>' +
+      '<button class="copy-btn" id="copy_' + key + '" onclick="copyCode(\'' + key + '\')">Kopier kode</button>' +
+      '</details>'
+    : '';
+
+  el.innerHTML =
+    '<p class="dev-name">' + d.name + '</p>' +
+    '<span class="proto-badge">' + d.proto + '</span>' +
+    '<div class="meta">' +
+      '<div class="meta-box"><div class="val">' + d.cables + '</div><div class="lbl">kabler totalt</div></div>' +
+      '<div class="meta-box volt-box"><div class="val">' + d.volt + '</div><div class="lbl">spenning</div></div>' +
+    '</div>' +
+    '<div class="pins-heading">Tilkoblinger</div>' +
+    pinRows +
+    libTags +
+    '<div class="tip"><strong>&#128161; Tips:</strong> ' + d.tip + '</div>' +
+    noticeHtml +
+    demoHtml +
+    codeHtml;
+
+  el.className = 'result show';
+}
+</script>
+</body>
+</html>

@@ -7,7 +7,7 @@ Firmware for Torpedino – et egendefinert undervisningsbrett basert på ESP32.
 | Mappe | Mikrokontroller | Status |
 |---|---|---|
 | `esp32s2/` | ESP32-S2-WROOM | Aktiv |
-| `esp32c5/` | ESP32-C5 | Under utvikling |
+| `esp32c5/` | ESP32-C5 | Aktiv |
 
 ## Kom i gang
 
@@ -23,5 +23,12 @@ python3 tools/make_assets.py
 
 1. Kjør `tools/make_assets.py` (krever Pillow: `pip install pillow`)
 2. Kjør `tools/make_release_zip.py`
-3. Last opp `torpedino-s2.zip` til en ny GitHub Release tagget f.eks. `s2-v0.0003`
+3. Last opp `torpedino-<brett>.zip` (f.eks. `torpedino-c5.zip`) til en ny GitHub Release tagget f.eks. `c5-v0.0003`
 4. Oppdater `DOWNLOAD_URL` i `core.ino` til å peke på ny release
+
+## ESP32-C5-varianten
+
+`esp32c5/` bruker samme oppsett som `esp32s2/` (WiFi-provisjonering, OTA, pin-veiviser), men:
+- Velg `ESP32C5 Dev Module` i Arduino IDE (krever nyeste `esp32`-pakke i Board Manager, versjon 3.x – ESP32-C5 støttes ikke i 2.x)
+- Hostname/mDNS og AP-SSID er `torpedino-c5` / `torpedino-c5-setup` (adskilt fra S2-brettet slik at begge kan stå på samme nettverk samtidig)
+- `torpedino.png` er foreløpig et plassholderbilde – bytt ut med et ekte foto av v0.0003-brettet når det finnes, og kjør `make_assets.py` på nytt
